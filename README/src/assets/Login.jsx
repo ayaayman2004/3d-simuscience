@@ -1,32 +1,38 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await loginUser({ email, password });
+      const token = data.access_token;
+      localStorage.setItem("token", token);
 
-const handleLogin = async (e) => {
-  e.preventDefault();
+      // Extract user name (adjust according to your API response)
+      let userName = "";
+      if (data.user) {
+        userName = data.user.full_name || data.user.name || email.split('@')[0];
+      } else {
+        userName = email.split('@')[0];
+      }
+      const userData = {
+        name: userName,
+        email: email
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
 
-  try {
-    const data = await loginUser({
-      email,
-      password,
-    });
+      navigate("/");
+    } catch (error) {
+      alert("Invalid email or password");
+    }
+  };
 
-    const token = data.access_token;
-
-    localStorage.setItem("token", token);
-
-    navigate("/userprofile");
-
-  } catch (error) {
-    alert("Invalid email or password");
-  }
-};
   return (
     <div className="login-page">
       <div className="login-container">

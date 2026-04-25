@@ -7,46 +7,77 @@ const ExperimentsHistory = () => {
   const navigate = useNavigate();
   const [experiments, setExperiments] = useState([]);
   const [userName, setUserName] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUserName(payload.sub || "");
-    } catch {}
+    } catch (e) {
+      console.error("Invalid token");
+    }
 
     fetch(`${BASE_URL}/history/`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
-      .then(data => setExperiments(Array.isArray(data) ? data : []))
-      .catch(() => setExperiments([]));
+      .then(async res => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
+          throw new Error("Session expired, please login again.");
+        }
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        setExperiments(Array.isArray(data) ? data : []);
+        setErrorMsg("");
+      })
+      .catch(err => {
+        console.error("Error fetching history:", err);
+        setErrorMsg(err.message);
+        setExperiments([]);
+      })
+      .finally(() => setLoading(false));
   }, [navigate]);
 
   const deleteExperiment = async (id) => {
     const token = localStorage.getItem("token");
-    await fetch(`${BASE_URL}/history/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setExperiments(prev => prev.filter(e => e.id !== id));
+    if (!token) return;
+    try {
+      const res = await fetch(`${BASE_URL}/history/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setExperiments(prev => prev.filter(e => e.id !== id));
+      } else {
+        console.warn("Delete failed:", res.status);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr + "Z");
     return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Cairo" });
-};
+  };
 
-const formatTime = (dateStr) => {
+  const formatTime = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr + "Z");
     return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Cairo" });
-};
+  };
 
   return (
     <div style={containerStyle}>
@@ -81,18 +112,30 @@ const formatTime = (dateStr) => {
           transition: 0.2s;
         }
         .delete-btn:hover { background: rgba(255,50,50,0.25); }
+        .error-message {
+          background: rgba(255,77,109,0.15);
+          border: 1px solid #ff4d6d;
+          border-radius: 12px;
+          padding: 16px;
+          margin: 20px 0;
+          text-align: center;
+          color: #ff9eae;
+        }
+        .loading-spinner {
+          text-align: center;
+          color: #88aacc;
+          margin-top: 40px;
+        }
       `}</style>
 
-      {/* Header */}
       <div style={headerStyle}>
         <h2 style={{ color: "#00d4ff", margin: 0, fontSize: "22px" }}>🧪 Experiment History</h2>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div style={userBadgeStyle}>👤 {userName}</div>
+          <div style={userBadgeStyle}>👤 {userName || "User"}</div>
           <button onClick={() => navigate("/LabScene")} style={btnSecondary}>Back to Lab</button>
         </div>
       </div>
 
-      {/* Stats */}
       <div style={statsGrid}>
         <div style={statCard("#00d4ff")}>
           <div style={statNum("#00d4ff")}>{experiments.length}</div>
@@ -114,60 +157,70 @@ const formatTime = (dateStr) => {
         </div>
       </div>
 
-      {/* Cards */}
-      <div style={{ marginTop: "10px" }}>
-        {experiments.length === 0 ? (
-          <div style={{ color: "#88aacc", textAlign: "center", marginTop: "40px" }}>
-            No experiments yet. Go do one! 🧪
-          </div>
-        ) : (
-          experiments.map((exp) => (
-            <div key={exp.id} className="hist-card">
-              <div style={{ flex: 1 }}>
-                <h3 style={{ color: "#fff", margin: "0 0 8px 0", fontSize: "1.2rem" }}>
-                  {exp.reactants} Reaction
-                </h3>
-                <div style={infoGrid}>
-                  <div style={infoItem}>
-                    <span style={infoLabel}>Reactants</span>
-                    <span style={infoValue}>{exp.reactants}</span>
-                  </div>
-                  <div style={infoItem}>
-                    <span style={infoLabel}>Result</span>
-                    <span style={infoValue}>{exp.result}</span>
-                  </div>
-                  <div style={infoItem}>
-                    <span style={infoLabel}>Reaction Type</span>
-                    <span style={infoValue}>{exp.reaction_type}</span>
-                  </div>
-                </div>
-                <span className="badge badge-success">Successful ✓</span>
-                <br />
-                <button className="delete-btn" onClick={() => deleteExperiment(exp.id)}>
-                  🗑 Delete
-                </button>
-              </div>
+      {loading && <div className="loading-spinner">⏳ Loading experiments...</div>}
+      {errorMsg && (
+        <div className="error-message">
+          ⚠️ {errorMsg}<br />
+          <button onClick={() => window.location.reload()} style={{ marginTop: "8px", background: "#00d4ff", border: "none", borderRadius: "8px", padding: "4px 12px", cursor: "pointer" }}>🔄 Retry</button>
+        </div>
+      )}
 
-              <div style={{ textAlign: "right", minWidth: "130px", paddingLeft: "20px" }}>
-                <div style={{ color: "#88aacc", fontSize: "12px" }}>📅 {formatDate(exp.created_at)}</div>
-                <div style={{ color: "#88aacc", fontSize: "12px", marginTop: "4px" }}>🕐 {formatTime(exp.created_at)}</div>
-                <div style={{ color: "#00ff88", fontWeight: "bold", marginTop: "12px", fontSize: "14px", background: "rgba(0,255,136,0.08)", padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(0,255,136,0.2)" }}>
-                  Result: {exp.result} ✓
+      {!loading && !errorMsg && (
+        <div style={{ marginTop: "10px" }}>
+          {experiments.length === 0 ? (
+            <div style={{ color: "#88aacc", textAlign: "center", marginTop: "40px" }}>
+              No experiments yet. Go do one! 🧪
+            </div>
+          ) : (
+            experiments.map((exp) => (
+              <div key={exp.id} className="hist-card">
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ color: "#fff", margin: "0 0 8px 0", fontSize: "1.2rem" }}>
+                    {exp.reactants} Reaction
+                  </h3>
+                  <div style={infoGrid}>
+                    <div style={infoItem}>
+                      <span style={infoLabel}>Reactants</span>
+                      <span style={infoValue}>{exp.reactants}</span>
+                    </div>
+                    <div style={infoItem}>
+                      <span style={infoLabel}>Result</span>
+                      <span style={infoValue}>{exp.result}</span>
+                    </div>
+                    <div style={infoItem}>
+                      <span style={infoLabel}>Reaction Type</span>
+                      <span style={infoValue}>{exp.reaction_type}</span>
+                    </div>
+                  </div>
+                  <span className="badge badge-success">Successful ✓</span>
+                  <br />
+                  <button className="delete-btn" onClick={() => deleteExperiment(exp.id)}>
+                    🗑 Delete
+                  </button>
+                </div>
+
+                <div style={{ textAlign: "right", minWidth: "130px", paddingLeft: "20px" }}>
+                  <div style={{ color: "#88aacc", fontSize: "12px" }}>📅 {formatDate(exp.created_at)}</div>
+                  <div style={{ color: "#88aacc", fontSize: "12px", marginTop: "4px" }}>🕐 {formatTime(exp.created_at)}</div>
+                  <div style={{ color: "#00ff88", fontWeight: "bold", marginTop: "12px", fontSize: "14px", background: "rgba(0,255,136,0.08)", padding: "6px 10px", borderRadius: "8px", border: "1px solid rgba(0,255,136,0.2)" }}>
+                    Result: {exp.result} ✓
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
+// تنسيقات متطابقة كما كانت
 const containerStyle = { minHeight: "100vh", background: "#060818", padding: "40px 8%", color: "#e0f4ff", fontFamily: "sans-serif" };
 const headerStyle = { display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "20px", marginBottom: "10px" };
 const userBadgeStyle = { background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "20px", padding: "6px 16px", fontSize: "13px", color: "#00d4ff" };
-const statsGrid = { display: "flex", gap: "16px", margin: "24px 0" };
-const statCard = (color) => ({ background: `rgba(${hexToRgb(color)},0.08)`, border: `1px solid rgba(${hexToRgb(color)},0.2)`, borderRadius: "12px", padding: "16px 24px", textAlign: "center", flex: 1 });
+const statsGrid = { display: "flex", gap: "16px", margin: "24px 0", flexWrap: "wrap" };
+const statCard = (color) => ({ background: `rgba(${hexToRgb(color)},0.08)`, border: `1px solid rgba(${hexToRgb(color)},0.2)`, borderRadius: "12px", padding: "16px 24px", textAlign: "center", flex: "1 1 180px" });
 const statNum = (color) => ({ fontSize: "28px", fontWeight: "bold", color });
 const statLabel = { fontSize: "12px", color: "#88aacc", marginTop: "4px" };
 const infoGrid = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "8px" };
