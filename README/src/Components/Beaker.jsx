@@ -57,14 +57,22 @@ const Beaker = forwardRef(
         }
       }
 
+      // onReady?.({
+      //   topY:        box.max.y,
+      //   bottomY:     box.min.y,
+      //   centerY:     (box.max.y + box.min.y) / 2,
+      //   totalH,
+      //   sliceRadii,            // ← profile كامل للقارورة
+      //   innerRadius: Math.max(...sliceRadii) * 0.80,
+      // });
       onReady?.({
-        topY:        box.max.y,
-        bottomY:     box.min.y,
-        centerY:     (box.max.y + box.min.y) / 2,
-        totalH,
-        sliceRadii,            // ← profile كامل للقارورة
-        innerRadius: Math.max(...sliceRadii) * 0.80,
-      });
+  topY:        box.max.y * 0.5,
+  bottomY:     box.min.y * 0.5,
+  centerY:     (box.max.y + box.min.y) / 2 * 0.5,
+  totalH:      totalH * 0.5,
+  sliceRadii:  sliceRadii.map(r => r * 0.5),
+  innerRadius: Math.max(...sliceRadii) * 0.80 * 0.5,
+});
     }, [beaker, reactionStarted]);
 
     return (

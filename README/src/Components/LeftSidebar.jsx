@@ -1,6 +1,7 @@
 import React from "react";
 import materialsData from "../Data/knowledge_visual.json";
 
+
 /* =========================
    HELPERS
 ========================= */
@@ -71,7 +72,7 @@ const LeftSidebar = () => {
     <div
       className="left-sidebar"
       style={{
-        width: "220px",
+        width: "280px",
         backgroundColor: "#f5f5f5",
         padding: "15px",
         borderRight: "1px solid #ddd",
