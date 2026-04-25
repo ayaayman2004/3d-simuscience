@@ -18,7 +18,7 @@ import UserDashboard from "./assets/UserDashbord";
 import compination from "./assets/compination";
 import LabScene from "./Components/LabScene";
 import ExperimentsHistory from "./Components/ExperimentsHistory";
-
+import ChatBot from "./Components/ChatBot"; 
  
 // Experiments Pages
  
@@ -287,6 +287,7 @@ function App() {
           <Route path="/Substiution"          element={<WithLoader><Substiution /></WithLoader>} />
           <Route path="/catalog"              element={<WithLoader><ReactionCatalog /></WithLoader>} />
           <Route path="/compination"          element={<WithLoader><compination /></WithLoader>} />
+           <Route path="/ChatBot" element={<WithLoader><ChatBot /></WithLoader>} />
         </Routes>
       </div>
   

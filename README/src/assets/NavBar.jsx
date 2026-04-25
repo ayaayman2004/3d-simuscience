@@ -34,14 +34,18 @@ export default function NavBar() {
             <li><Link className="nav-link-item" to="/" onClick={closeMenu}>Home</Link></li>
             <li><Link className="nav-link-item" to="/Register" onClick={closeMenu}>Register</Link></li>
             <li><Link className="nav-link-item" to="/Login" onClick={closeMenu}>Login</Link></li>
-            {/* <li><Link className="nav-link-item" to="/UserProfile" onClick={closeMenu}>User Profile</Link></li> */}
             <li><Link className="nav-link-item" to="/Review" onClick={closeMenu}>Review</Link></li>
             <li><Link className="nav-link-item" to="/ChemicalTools" onClick={closeMenu}>Chemical Tools</Link></li>
+            {/* رابط ChemBot - ينتقل إلى صفحة منفصلة */}
+            <li>
+             <Link className="nav-link-item chatbot-link" to="/ChatBot" onClick={closeMenu}>
+  ⚗️ ChemBot
+</Link>
+            </li>
           </ul>
         </div>
       </nav>
 
-      {/* الـ CSS مدمج في نفس الملف */}
       <style>{`
         .custom-navbar {
           width: 100%;
@@ -59,7 +63,7 @@ export default function NavBar() {
           margin: 0 auto;
           display: flex;
           align-items: center;
-          justify-content: space-between; /* توزيع اللوجو يسار والروابط يمين */
+          justify-content: space-between;
           padding: 0 24px;
         }
 
@@ -90,6 +94,21 @@ export default function NavBar() {
           color: #00d4ff;
         }
 
+        /* رابط ChemBot مخصص */
+        .chatbot-link {
+          background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,201,167,0.1));
+          border: 1px solid rgba(0,212,255,0.4);
+          border-radius: 30px;
+          padding: 6px 16px;
+          transition: all 0.3s ease;
+        }
+
+        .chatbot-link:hover {
+          background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(0,201,167,0.2));
+          box-shadow: 0 0 10px rgba(0,212,255,0.3);
+          transform: translateY(-2px);
+        }
+
         .menu-toggle {
           display: none;
           background: none;
@@ -109,7 +128,7 @@ export default function NavBar() {
           .navbar-nav {
             position: fixed;
             top: 0;
-            right: -100%; /* مخفي خارج الشاشة يميناً */
+            right: -100%;
             width: 70%;
             height: 100vh;
             background: rgba(4, 6, 15, 0.98);
@@ -121,7 +140,7 @@ export default function NavBar() {
           }
 
           .navbar-nav.active {
-            right: 0; /* يظهر عند التفعيل */
+            right: 0;
           }
 
           .nav-link-item {
