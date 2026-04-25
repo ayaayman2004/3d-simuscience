@@ -49,22 +49,15 @@ export default function ChatBotPage() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // --- التعديل الأساسي: فتح الصفحة دائماً من الأعلى ---
   useLayoutEffect(() => {
-    // منع المتصفح من استعادة آخر موضع تمرير
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
-    // تمرير نافذة المتصفح للأعلى
     window.scrollTo(0, 0);
-    // تمرير حاوية الرسائل (إن وُجدت) للأعلى
     const msgContainer = document.getElementById('messagesContainer');
-    if (msgContainer) {
-      msgContainer.scrollTop = 0;
-    }
+    if (msgContainer) msgContainer.scrollTop = 0;
   }, []);
 
-  // تحميل المحادثات من localStorage
   useEffect(() => {
     const saved = localStorage.getItem("chembot_conversations");
     if (saved) {
@@ -77,14 +70,12 @@ export default function ChatBotPage() {
     }
   }, []);
 
-  // حفظ المحادثات عند تغييرها
   useEffect(() => {
     if (conversations.length > 0) {
       localStorage.setItem("chembot_conversations", JSON.stringify(conversations));
     }
   }, [conversations]);
 
-  // التمرير التلقائي لآخر رسالة (بعد إرسال رسالة جديدة فقط)
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -113,7 +104,6 @@ export default function ChatBotPage() {
   const newChat = () => {
     setCurrentConvId(null);
     setMessages([]);
-    // عند بدء محادثة جديدة، نعيد التمرير للأعلى أيضاً
     setTimeout(() => {
       window.scrollTo(0, 0);
       const msgContainer = document.getElementById('messagesContainer');
@@ -126,7 +116,6 @@ export default function ChatBotPage() {
     if (conv) {
       setCurrentConvId(conv.id);
       setMessages(conv.messages);
-      // عند تحميل محادثة قديمة، نعيد التمرير للأعلى
       setTimeout(() => {
         window.scrollTo(0, 0);
         const msgContainer = document.getElementById('messagesContainer');
@@ -359,36 +348,31 @@ export default function ChatBotPage() {
 
       <style>{`
         :root {
-          --bg-primary: #0a0e1a;
-          --bg-secondary: #0f1528;
-          --bg-tertiary: #141b35;
-          --bg-surface: #1a2240;
-          --bg-surface-hover: #1f2a4d;
           --accent-cyan: #00d4ff;
           --accent-teal: #00c9a7;
           --accent-purple: #7c5cbf;
           --accent-glow: rgba(0,212,255,0.15);
           --text-primary: #e8f0fe;
-          --text-secondary: #8fa3c8;
-          --text-muted: #4a5a7a;
-          --border: rgba(0,212,255,0.12);
-          --border-hover: rgba(0,212,255,0.3);
-          --error: #ff4d6d;
-          --scrollbar-thumb: #2a3a60;
+          --text-secondary: #b8d0ff;
+          --text-muted: #7a9bcb;
+          --border: rgba(0,212,255,0.2);
+          --border-hover: rgba(0,212,255,0.4);
+          --bg-glass: rgba(8, 18, 38, 0.65);
+          --bg-glass-strong: rgba(5, 12, 28, 0.85);
         }
 
         .chatbot-fullpage {
           min-height: 100vh;
-          background: var(--bg-primary);
+          background: transparent;
           display: flex;
           flex-direction: column;
           font-family: 'Cairo', 'Segoe UI', sans-serif;
         }
 
-        /* header */
+        /* header with glass effect */
         .chatbot-header-full {
-          background: rgba(10,14,26,0.95);
-          backdrop-filter: blur(12px);
+          background: var(--bg-glass);
+          backdrop-filter: blur(16px);
           border-bottom: 1px solid var(--border);
           padding: 12px 24px;
           display: flex;
@@ -403,6 +387,10 @@ export default function ChatBotPage() {
           color: var(--accent-cyan);
           font-size: 14px;
           cursor: pointer;
+          transition: 0.2s;
+        }
+        .back-home:hover {
+          text-shadow: 0 0 6px var(--accent-cyan);
         }
         .chatbot-header-full h2 {
           margin: 0;
@@ -425,6 +413,11 @@ export default function ChatBotPage() {
           padding: 4px 12px;
           cursor: pointer;
           color: var(--accent-cyan);
+          transition: 0.2s;
+        }
+        .api-status button:hover {
+          background: rgba(0,212,255,0.2);
+          border-color: var(--accent-cyan);
         }
 
         /* main layout */
@@ -434,10 +427,11 @@ export default function ChatBotPage() {
           overflow: hidden;
         }
 
-        /* sidebar */
+        /* sidebar glass */
         .chatbot-sidebar {
           width: 280px;
-          background: rgba(15,21,40,0.8);
+          background: var(--bg-glass);
+          backdrop-filter: blur(16px);
           border-left: 1px solid var(--border);
           display: flex;
           flex-direction: column;
@@ -464,6 +458,11 @@ export default function ChatBotPage() {
           padding: 5px 10px;
           font-size: 12px;
           cursor: pointer;
+          transition: 0.2s;
+        }
+        .btn-new-chat:hover {
+          background: rgba(0,212,255,0.25);
+          border-color: var(--accent-cyan);
         }
         .conversations-list {
           flex: 1;
@@ -476,14 +475,15 @@ export default function ChatBotPage() {
           cursor: pointer;
           margin-bottom: 2px;
           border: 1px solid transparent;
+          transition: 0.2s;
         }
         .conversation-item:hover {
-          background: var(--bg-surface);
+          background: rgba(0,212,255,0.08);
           border-color: var(--border);
         }
         .conversation-item.active {
-          background: var(--bg-surface);
-          border-color: rgba(0,212,255,0.25);
+          background: rgba(0,212,255,0.12);
+          border-color: var(--accent-cyan);
         }
         .conv-title {
           font-size: 13px;
@@ -538,10 +538,11 @@ export default function ChatBotPage() {
           font-size: 12px;
           margin-bottom: 4px;
           cursor: pointer;
+          transition: 0.2s;
         }
         .qt-btn:hover {
           background: rgba(0,212,255,0.1);
-          border-color: var(--border-hover);
+          border-color: var(--accent-cyan);
           color: var(--accent-cyan);
         }
 
@@ -559,6 +560,7 @@ export default function ChatBotPage() {
           display: flex;
           flex-direction: column;
           gap: 20px;
+          background: transparent;
         }
         .welcome-screen {
           display: flex;
@@ -567,6 +569,10 @@ export default function ChatBotPage() {
           justify-content: center;
           text-align: center;
           padding: 40px;
+          background: var(--bg-glass-strong);
+          backdrop-filter: blur(20px);
+          border-radius: 32px;
+          border: 1px solid var(--border);
         }
         .welcome-icon {
           font-size: 64px;
@@ -595,7 +601,7 @@ export default function ChatBotPage() {
           width: 100%;
         }
         .example-q {
-          background: var(--bg-surface);
+          background: rgba(0,212,255,0.06);
           border: 1px solid var(--border);
           border-radius: 10px;
           padding: 12px 14px;
@@ -605,8 +611,8 @@ export default function ChatBotPage() {
           transition: 0.25s;
         }
         .example-q:hover {
-          background: var(--bg-surface-hover);
-          border-color: rgba(0,212,255,0.35);
+          background: rgba(0,212,255,0.15);
+          border-color: var(--accent-cyan);
           transform: translateY(-2px);
         }
         .message {
@@ -650,14 +656,15 @@ export default function ChatBotPage() {
           border-radius: 14px;
           font-size: 14px;
           line-height: 1.65;
+          backdrop-filter: blur(8px);
         }
         .message.user .msg-bubble {
           background: linear-gradient(135deg, #1a2f5e, #0f1e42);
-          border: 1px solid rgba(0,212,255,0.25);
+          border: 1px solid rgba(0,212,255,0.3);
           border-radius: 14px 4px 14px 14px;
         }
         .message.bot .msg-bubble {
-          background: var(--bg-surface);
+          background: rgba(10, 20, 35, 0.75);
           border: 1px solid var(--border);
           border-radius: 4px 14px 14px 14px;
         }
@@ -680,6 +687,7 @@ export default function ChatBotPage() {
           padding: 3px 8px;
           font-size: 11px;
           cursor: pointer;
+          transition: 0.2s;
         }
         .copy-btn:hover {
           background: rgba(0,212,255,0.12);
@@ -690,9 +698,11 @@ export default function ChatBotPage() {
           gap: 6px;
           align-items: center;
           padding: 10px 14px;
-          background: var(--bg-surface);
+          background: rgba(10, 20, 35, 0.75);
+          backdrop-filter: blur(8px);
           border-radius: 20px;
           width: fit-content;
+          border: 1px solid var(--border);
         }
         .typing-dot {
           width: 7px;
@@ -705,18 +715,19 @@ export default function ChatBotPage() {
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         .input-area {
           padding: 16px 24px 20px;
-          background: rgba(10,14,26,0.95);
+          background: transparent;
           border-top: 1px solid var(--border);
         }
         .input-wrapper {
-          background: var(--bg-surface);
+          background: var(--bg-glass);
+          backdrop-filter: blur(12px);
           border: 1px solid var(--border);
           border-radius: 14px;
           transition: 0.25s;
         }
         .input-wrapper:focus-within {
-          border-color: rgba(0,212,255,0.5);
-          box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+          border-color: var(--accent-cyan);
+          box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
         }
         .input-row {
           display: flex;
@@ -744,6 +755,11 @@ export default function ChatBotPage() {
           cursor: pointer;
           font-size: 20px;
           border-radius: 0 14px 14px 0;
+          transition: 0.2s;
+        }
+        .send-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, rgba(0,212,255,0.4), rgba(0,201,167,0.3));
+          box-shadow: 0 0 12px rgba(0,212,255,0.4);
         }
         .send-btn:disabled {
           opacity: 0.4;
@@ -753,7 +769,7 @@ export default function ChatBotPage() {
           display: flex;
           justify-content: space-between;
           padding: 6px 14px 8px;
-          border-top: 1px solid rgba(0,212,255,0.06);
+          border-top: 1px solid rgba(0,212,255,0.1);
           font-size: 11px;
           color: var(--text-muted);
         }
@@ -761,15 +777,16 @@ export default function ChatBotPage() {
           position: fixed;
           inset: 0;
           background: rgba(0,0,0,0.7);
-          backdrop-filter: blur(4px);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 10000;
         }
         .modal-content {
-          background: var(--bg-secondary);
-          border: 1px solid rgba(0,212,255,0.3);
+          background: var(--bg-glass-strong);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(0,212,255,0.4);
           border-radius: 24px;
           padding: 24px;
           width: 320px;
@@ -777,8 +794,8 @@ export default function ChatBotPage() {
         }
         .modal-content input {
           width: 100%;
-          background: #1a2240;
-          border: 1px solid rgba(0,212,255,0.2);
+          background: rgba(0,212,255,0.08);
+          border: 1px solid var(--border);
           border-radius: 40px;
           padding: 10px 16px;
           margin: 16px 0;
@@ -792,6 +809,11 @@ export default function ChatBotPage() {
           border-radius: 40px;
           font-weight: bold;
           cursor: pointer;
+          transition: 0.2s;
+        }
+        .modal-content button:hover {
+          background: #00e4ff;
+          box-shadow: 0 0 15px var(--accent-cyan);
         }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(10px); }
