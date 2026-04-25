@@ -268,6 +268,21 @@ const REACTION_TYPES = [
   },
 ];
 
+// ─── NEW SECTION DATA (Pioneers + Advanced Features + Cinematic) ───
+const PIONEERS = [
+  { name: "Antoine Lavoisier", contribution: "Father of modern chemistry", icon: "🧪", era: "1743–1794" },
+  { name: "Dmitri Mendeleev", contribution: "Periodic table", icon: "📊", era: "1834–1907" },
+  { name: "Marie Curie", contribution: "Radioactivity & elements", icon: "☢️", era: "1867–1934" },
+  { name: "Linus Pauling", contribution: "Chemical bond & quantum chemistry", icon: "⚛️", era: "1901–1994" },
+];
+
+const FEATURES_ADVANCED = [
+  { icon: "🧠", title: "AI Predictions", desc: "Real-time reaction outcome forecasting" },
+  { icon: "📊", title: "Smart Analytics", desc: "Track your experiment history & progress" },
+  { icon: "🌍", title: "Multi-language", desc: "English / Arabic interface" },
+  { icon: "🎮", title: "Gamified Learning", desc: "Earn badges & level up your chemistry skills" },
+];
+
 export default function Home() {
   const navigate = useNavigate();
   const mouseGlowRef = useRef(null);
@@ -324,6 +339,10 @@ export default function Home() {
   const [typesRef, typesVis] = useReveal(0.1);
   const [expRef, expVis] = useReveal(0.05);
   const [ctaRef, ctaVis] = useReveal(0.2);
+  // New section refs
+  const [pioneersRef, pioneersVis] = useReveal(0.1);
+  const [featuresRef, featuresVis] = useReveal(0.1);
+  const [cinemaRef, cinemaVis] = useReveal(0.1);
 
   return (
     <PageLoader label="Loading Laboratory…">
@@ -559,6 +578,88 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ────────────── NEW SECTION 1 : PIONEERS (Creative Cards) ────────────── */}
+        <section className="hd-pioneers" ref={pioneersRef}>
+          <div className="hd-section-header">
+            <div className="hd-section-tag">Chemistry Heroes</div>
+            <h2 className="hd-section-title">Pioneers Who Shaped Science</h2>
+          </div>
+          <div className="pioneers-grid">
+            {PIONEERS.map((p, idx) => {
+              const [cardRef, cardVis] = useReveal(0.2);
+              return (
+                <div
+                  key={idx}
+                  ref={cardRef}
+                  className={`pioneer-card ${cardVis ? "pioneer-reveal" : ""}`}
+                  style={{ transitionDelay: `${idx * 0.1}s` }}
+                >
+                  <div className="pioneer-icon">{p.icon}</div>
+                  <h3 className="pioneer-name">{p.name}</h3>
+                  <p className="pioneer-contribution">{p.contribution}</p>
+                  <div className="pioneer-era">{p.era}</div>
+                  <div className="pioneer-glow" />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ────────────── NEW SECTION 2 : ADVANCED FEATURES (Modern Grid) ────────────── */}
+        <section className="hd-advanced-features" ref={featuresRef}>
+          <div className="hd-section-header">
+            <div className="hd-section-tag">Beyond the Lab</div>
+            <h2 className="hd-section-title">Why Choose Simuscience</h2>
+          </div>
+          <div className="features-advanced-grid">
+            {FEATURES_ADVANCED.map((f, idx) => {
+              const [featRef, featVis] = useReveal(0.15);
+              return (
+                <div
+                  key={idx}
+                  ref={featRef}
+                  className={`feature-advanced-card ${featVis ? "feature-reveal" : ""}`}
+                  style={{ transitionDelay: `${idx * 0.1}s` }}
+                >
+                  <div className="feature-icon">{f.icon}</div>
+                  <h3 className="feature-title">{f.title}</h3>
+                  <p className="feature-desc">{f.desc}</p>
+                  <div className="feature-underline"></div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ────────────── NEW SECTION 3 : CINEMATIC EXPERIENCE (Full width video/glow) ────────────── */}
+        <section className="hd-cinematic" ref={cinemaRef}>
+          <div className={`cinematic-container ${cinemaVis ? "cinema-reveal" : ""}`}>
+            <div className="cinematic-backdrop">
+              <div className="cinematic-glow-1"></div>
+              <div className="cinematic-glow-2"></div>
+              <div className="cinematic-glow-3"></div>
+            </div>
+            <div className="cinematic-content">
+              <div className="cinematic-badge">✨ Immersive Experience</div>
+              <h2 className="cinematic-title">
+                Step Into a <span className="cinematic-gradient">Cinematic Science</span> Journey
+              </h2>
+              <p className="cinematic-desc">
+                Watch reactions unfold in stunning 3D, with real-time particle effects, dynamic lighting, and an immersive environment that makes learning chemistry feel like a blockbuster movie.
+              </p>
+              <div className="cinematic-features">
+                <span>🎬 4K Visuals</span>
+                <span>🌀 Real-time Physics</span>
+                <span>🔊 3D Spatial Audio</span>
+                <span>⚡ Interactive Elements</span>
+              </div>
+              <MagneticBtn className="hd-btn-primary cinematic-btn" onClick={goToLab}>
+                Experience the Lab →
+              </MagneticBtn>
+            </div>
+          </div>
+        </section>
+
         {/* ══════════════════ CTA ══════════════════ */}
         <section className="hd-cta" ref={ctaRef}>
           <div className={`hd-cta-inner cta-enhanced ${ctaVis ? "reveal" : ""}`}>
@@ -577,7 +678,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══════════════════ CSS ══════════════════ */}
+        {/* ══════════════════ CSS (existing + new sections styles) ══════════════════ */}
         <style>{`
           /* ── RESET GLOBAL MARGINS/PADDINGS TO REMOVE GAP BETWEEN NAVBAR AND HERO ── */
           html, body, #root {
@@ -883,11 +984,278 @@ export default function Home() {
             0%, 100% { transform: translate(0, 0); }
             50% { transform: translate(20px, -20px); }
           }
+
+          /* ---------- NEW SECTIONS STYLES (modern & compact) ---------- */
+          .hd-pioneers, .hd-advanced-features {
+            padding: 60px 5%;
+            margin: 0;
+            background: transparent;
+          }
+          .pioneers-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 40px;
+          }
+          .pioneer-card {
+            background: rgba(15, 25, 45, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 28px 20px;
+            width: 220px;
+            text-align: center;
+            border: 1px solid rgba(0,212,255,0.2);
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          .pioneer-reveal {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+          }
+          .pioneer-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #00d4ff;
+            background: rgba(20, 35, 60, 0.8);
+            box-shadow: 0 20px 35px -12px rgba(0,212,255,0.25);
+          }
+          .pioneer-icon {
+            font-size: 52px;
+            margin-bottom: 16px;
+            display: inline-block;
+          }
+          .pioneer-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #eef5ff;
+            margin: 12px 0 6px;
+          }
+          .pioneer-contribution {
+            font-size: 13px;
+            color: #9bb5e0;
+            margin: 6px 0;
+          }
+          .pioneer-era {
+            font-size: 11px;
+            color: #5f7f9e;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+          }
+          .pioneer-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(0,212,255,0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+          }
+          .pioneer-card:hover .pioneer-glow { opacity: 1; }
+
+          .features-advanced-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+          }
+          .feature-advanced-card {
+            background: linear-gradient(145deg, rgba(10,20,35,0.7), rgba(5,12,22,0.8));
+            backdrop-filter: blur(6px);
+            border-radius: 24px;
+            padding: 28px 22px;
+            width: 250px;
+            text-align: center;
+            border: 1px solid rgba(0,212,255,0.15);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+          }
+          .feature-reveal {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+          }
+          .feature-advanced-card:hover {
+            transform: translateY(-10px);
+            border-color: #7b2ff7;
+            box-shadow: 0 15px 30px -12px rgba(123,47,247,0.3);
+            background: linear-gradient(145deg, rgba(20,40,65,0.85), rgba(8,18,32,0.95));
+          }
+          .feature-icon {
+            font-size: 48px;
+            margin-bottom: 18px;
+          }
+          .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e0f0ff, #b0e0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+          }
+          .feature-desc {
+            font-size: 14px;
+            color: #aac4e8;
+            line-height: 1.4;
+          }
+          .feature-underline {
+            width: 40px;
+            height: 2px;
+            background: #00d4ff;
+            margin: 18px auto 0;
+            transition: width 0.3s ease;
+          }
+          .feature-advanced-card:hover .feature-underline {
+            width: 70px;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+          }
+
+          /* Cinematic Section */
+          .hd-cinematic {
+            padding: 80px 5%;
+            margin: 0;
+            background: transparent;
+            perspective: 1000px;
+          }
+          .cinematic-container {
+            background: linear-gradient(145deg, rgba(8,12,28,0.85), rgba(2,6,18,0.95));
+            border-radius: 48px;
+            border: 1px solid rgba(0,212,255,0.25);
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            opacity: 0;
+            transform: translateY(50px) rotateX(8deg);
+          }
+          .cinema-reveal {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+          }
+          .cinematic-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+          }
+          .cinematic-glow-1, .cinematic-glow-2, .cinematic-glow-3 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            animation: cinemaGlowFloat 12s infinite alternate;
+          }
+          .cinematic-glow-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(0,212,255,0.2);
+            top: -150px;
+            left: -100px;
+          }
+          .cinematic-glow-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(123,47,247,0.15);
+            bottom: -200px;
+            right: -150px;
+            animation-duration: 18s;
+          }
+          .cinematic-glow-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(0,255,160,0.1);
+            top: 40%;
+            left: 30%;
+            animation-duration: 15s;
+          }
+          @keyframes cinemaGlowFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -40px) scale(1.2); }
+          }
+          .cinematic-content {
+            position: relative;
+            z-index: 2;
+          }
+          .cinematic-badge {
+            display: inline-block;
+            background: rgba(0,212,255,0.15);
+            backdrop-filter: blur(4px);
+            border-radius: 100px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+          }
+          .cinematic-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 20px 0;
+            color: white;
+          }
+          .cinematic-gradient {
+            background: linear-gradient(135deg, #00d4ff, #7b2ff7, #00ffa0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+          }
+          .cinematic-desc {
+            font-size: 1.1rem;
+            color: #b8ceff;
+            max-width: 700px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+          }
+          .cinematic-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 40px;
+          }
+          .cinematic-features span {
+            background: rgba(255,255,255,0.05);
+            border-radius: 60px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ccdeff;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0,212,255,0.2);
+            transition: all 0.3s;
+          }
+          .cinematic-features span:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+            transform: translateY(-2px);
+          }
+          .cinematic-btn {
+            background: linear-gradient(105deg, rgba(0,212,255,0.2), rgba(123,47,247,0.2));
+            border: 1px solid rgba(0,212,255,0.5);
+            box-shadow: 0 0 20px rgba(0,212,255,0.2);
+          }
+
+          /* تقليل المسافات بين السكشنات */
+          .hd-stats, .hd-about, .hd-types, .hd-experiments-infinite, .hd-pioneers, .hd-advanced-features, .hd-cinematic, .hd-cta {
+            margin-top: 0;
+            margin-bottom: 0;
+          }
+          .hd-cta {
+            padding: 50px 5% 60px;
+          }
           @media (max-width: 768px) {
-            .exp-infinite-card {
-              width: 240px;
-              height: 160px;
-            }
+            .pioneer-card, .feature-advanced-card { width: 180px; padding: 20px 12px; }
+            .pioneer-icon { font-size: 40px; }
+            .exp-infinite-card { width: 240px; height: 160px; }
+            .cinematic-title { font-size: 2rem; }
+            .cinematic-features span { font-size: 11px; padding: 5px 12px; }
             @keyframes scroll-infinite {
               100% { transform: translateX(calc(-260px * ${EXPERIMENTS.length})); }
             }

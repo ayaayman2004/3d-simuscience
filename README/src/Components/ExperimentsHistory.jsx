@@ -1,7 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = "https://nadamomen26-users.hf.space";
+
+// مكون النجوم المتحركة
+function StarsBackground() {
+  const starsRef = useRef(null);
+  useEffect(() => {
+    const container = starsRef.current;
+    if (!container) return;
+    const count = 220;
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      const size = Math.random() * 2.5 + 1.2;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.animationDelay = `${Math.random() * 8}s`;
+      star.style.animationDuration = `${Math.random() * 6 + 5}s`;
+      star.style.opacity = Math.random() * 0.7 + 0.2;
+      container.appendChild(star);
+    }
+    return () => { while (container.firstChild) container.removeChild(container.firstChild); };
+  }, []);
+  return <div ref={starsRef} className="hist-stars" />;
+}
 
 const ExperimentsHistory = () => {
   const navigate = useNavigate();
@@ -81,20 +106,41 @@ const ExperimentsHistory = () => {
 
   return (
     <div style={containerStyle}>
+      <StarsBackground />
       <style>{`
+        .hist-stars {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: -5;
+          overflow: hidden;
+          background: transparent;
+        }
+        .hist-stars .star {
+          position: absolute;
+          background: radial-gradient(circle, #ffffff, #aaddff);
+          border-radius: 50%;
+          box-shadow: 0 0 8px rgba(255,255,200,0.6);
+          animation: starTwinkleHist 6s infinite alternate;
+        }
+        @keyframes starTwinkleHist {
+          0% { opacity: 0.2; transform: scale(1); }
+          100% { opacity: 1; transform: scale(1.3); }
+        }
         .hist-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(0,212,255,0.2);
-          border-radius: 15px;
+          background: rgba(10, 25, 45, 0.55);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(0,212,255,0.25);
+          border-radius: 20px;
           padding: 24px;
-          margin-bottom: 15px;
+          margin-bottom: 18px;
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
           transition: 0.3s;
         }
         .hist-card:hover {
-          background: rgba(0,212,255,0.05);
+          background: rgba(0,212,255,0.12);
           border-color: #00d4ff;
           transform: translateY(-3px);
         }
@@ -215,19 +261,88 @@ const ExperimentsHistory = () => {
   );
 };
 
-// تنسيقات متطابقة كما كانت
-const containerStyle = { minHeight: "100vh", background: "#060818", padding: "40px 8%", color: "#e0f4ff", fontFamily: "sans-serif" };
-const headerStyle = { display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "20px", marginBottom: "10px" };
-const userBadgeStyle = { background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "20px", padding: "6px 16px", fontSize: "13px", color: "#00d4ff" };
-const statsGrid = { display: "flex", gap: "16px", margin: "24px 0", flexWrap: "wrap" };
-const statCard = (color) => ({ background: `rgba(${hexToRgb(color)},0.08)`, border: `1px solid rgba(${hexToRgb(color)},0.2)`, borderRadius: "12px", padding: "16px 24px", textAlign: "center", flex: "1 1 180px" });
-const statNum = (color) => ({ fontSize: "28px", fontWeight: "bold", color });
-const statLabel = { fontSize: "12px", color: "#88aacc", marginTop: "4px" };
-const infoGrid = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "8px" };
-const infoItem = { display: "flex", flexDirection: "column", gap: "2px" };
-const infoLabel = { fontSize: "11px", color: "#88aacc", textTransform: "uppercase", letterSpacing: "0.5px" };
-const infoValue = { fontSize: "14px", color: "#e0f4ff", fontWeight: "500" };
-const btnSecondary = { padding: "10px 20px", borderRadius: "10px", border: "1px solid #00d4ff", background: "transparent", color: "#00d4ff", cursor: "pointer", fontWeight: "bold" };
+// تنسيقات شفافة مع خلفية شفافة (النجوم تظهر من خلالها)
+const containerStyle = { 
+  minHeight: "100vh", 
+  background: "transparent", 
+  padding: "40px 8%", 
+  color: "#e0f4ff", 
+  fontFamily: "sans-serif" 
+};
+const headerStyle = { 
+  display: "flex", 
+  justifyContent: "space-between", 
+  alignItems: "center", 
+  borderBottom: "1px solid rgba(0,212,255,0.2)", 
+  paddingBottom: "20px", 
+  marginBottom: "10px" 
+};
+const userBadgeStyle = { 
+  background: "rgba(0,212,255,0.1)", 
+  border: "1px solid rgba(0,212,255,0.3)", 
+  borderRadius: "20px", 
+  padding: "6px 16px", 
+  fontSize: "13px", 
+  color: "#00d4ff" 
+};
+const statsGrid = { 
+  display: "flex", 
+  gap: "16px", 
+  margin: "24px 0", 
+  flexWrap: "wrap" 
+};
+const statCard = (color) => ({ 
+  background: `rgba(10, 25, 45, 0.55)`,
+  backdropFilter: "blur(8px)",
+  border: `1px solid rgba(${hexToRgb(color)},0.3)`, 
+  borderRadius: "16px", 
+  padding: "16px 24px", 
+  textAlign: "center", 
+  flex: "1 1 180px" 
+});
+const statNum = (color) => ({ 
+  fontSize: "28px", 
+  fontWeight: "bold", 
+  color 
+});
+const statLabel = { 
+  fontSize: "12px", 
+  color: "#88aacc", 
+  marginTop: "4px" 
+};
+const infoGrid = { 
+  display: "grid", 
+  gridTemplateColumns: "1fr 1fr", 
+  gap: "10px", 
+  marginBottom: "8px" 
+};
+const infoItem = { 
+  display: "flex", 
+  flexDirection: "column", 
+  gap: "2px" 
+};
+const infoLabel = { 
+  fontSize: "11px", 
+  color: "#b8d0ff", 
+  textTransform: "uppercase", 
+  letterSpacing: "0.5px" 
+};
+const infoValue = { 
+  fontSize: "14px", 
+  color: "#eef4ff", 
+  fontWeight: "500" 
+};
+const btnSecondary = { 
+  padding: "10px 20px", 
+  borderRadius: "10px", 
+  border: "1px solid #00d4ff", 
+  background: "rgba(0,212,255,0.1)", 
+  color: "#00d4ff", 
+  cursor: "pointer", 
+  fontWeight: "bold",
+  transition: "0.2s",
+  backdropFilter: "blur(4px)"
+};
 
 function hexToRgb(hex) {
   const r = parseInt(hex.slice(1, 3), 16);

@@ -302,7 +302,6 @@ function PlacedMaterial({ material, index, total, bounds }) {
   const state = (material.state || "solid").toLowerCase();
   const px = total > 1 ? (index - (total-1)/2) * 0.12 : 0;
 
-  // position مختلف للصلب vs السائل والغاز
   const py = state === "solid"
     ? bounds.bottomY + (bounds.topY - bounds.bottomY) *-1
     : bounds.bottomY;
@@ -310,7 +309,9 @@ function PlacedMaterial({ material, index, total, bounds }) {
   return (
     <group position={[px, py, 0]}>
       {state === "solid"  && <SolidMat color={color} />}
-{state === "gas" && <GasResult color={color} bounds={bounds} progress={progress} isProduct={false} />}{state === "liquid" && <LiquidResult color={color} bounds={bounds} progress={progress} yOffset={0} />}      {!["solid","liquid","gas"].includes(state) && <SolidMat color={color} />}
+      {state === "gas" && <GasResult color={color} bounds={bounds} progress={progress} isProduct={false} />}
+      {state === "liquid" && <LiquidResult color={color} bounds={bounds} progress={progress} yOffset={0} />}      
+      {!["solid","liquid","gas"].includes(state) && <SolidMat color={color} />}
       <Text position={[0, 0.18, 0]} fontSize={0.065} color="white"
         outlineWidth={0.006} outlineColor="#1a1a2e" renderOrder={10} anchorX="center">
         {material.name}
@@ -318,11 +319,11 @@ function PlacedMaterial({ material, index, total, bounds }) {
     </group>
   );
 }
+
 /* ================================================================ TRANSITION */
 function ReactionEffect({ bounds }) {
   return (
         <group position={[0, bounds.bottomY + 0, 0]}>
-
       <Sparkles count={60} scale={0.6} size={5} speed={4} color="#ffcc00" />
       <Sparkles count={30} scale={0.4} size={3} speed={6} color="#ff4488" />
       {Array.from({ length: 20 }, (_, i) => (
@@ -354,8 +355,7 @@ function ProductResult({ reaction, bounds }) {
 
   return (
     <group>
-{state === "liquid" && <LiquidResult color={color} bounds={bounds} progress={progress} yOffset={-0.7} />}  
-    {/* {state === "liquid" && <LiquidResult color={color} bounds={bounds} progress={progress} />} */}
+      {state === "liquid" && <LiquidResult color={color} bounds={bounds} progress={progress} yOffset={-0.7} />}  
       {state === "gas"    && <GasResult    color={color} bounds={bounds} progress={progress} />}
       {state === "solid"  && <SolidResult  color={color} bounds={bounds} progress={progress} />}
      <group position={[0, bounds.topY + 0.10, 0]}>
@@ -417,17 +417,17 @@ export default function LabScene() {
     try {
       const token = localStorage.getItem("token");
       await fetch(`${BASE_URL}/history/`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({
-        reactants: selectedReaction.reactants,
-        result: selectedReaction.products,
-        reaction_type: selectedReaction.reaction_type || ""
-    })
-});
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            reactants: selectedReaction.reactants,
+            result: selectedReaction.products,
+            reaction_type: selectedReaction.reaction_type || ""
+        })
+      });
     } catch (err) {
       console.error("فشل حفظ التجربة:", err);
     }
@@ -447,19 +447,26 @@ export default function LabScene() {
     <div style={{
       position: "relative", width: "100%", height: "100%",
       display: "flex", flexDirection: "column", overflow: "hidden",
-      background: "linear-gradient(135deg,#060818,#0d1b3e,#0a1628)",
+      background: "transparent",
       fontFamily: "'Segoe UI',system-ui,sans-serif",
       opacity: entered ? 1 : 0,
       transform: entered ? "scale(1)" : "scale(0.97)",
       transition: "opacity 0.6s ease, transform 0.6s ease",
+      marginTop: 0,
+      paddingTop: 0,
     }}>
-      {/* TOPBAR */}
+      <style>{`
+        @keyframes lsPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+      `}</style>
+
+      {/* TOPBAR - no margin/padding */}
       <div style={{
         flexShrink: 0, height: 52,
         background: "rgba(6,8,24,0.88)", backdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(0,212,255,0.18)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: isMobile ? "0 12px" : "0 20px", zIndex: 300,
+        margin: 0,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,#00d4ff,#7b61ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, boxShadow: "0 0 16px rgba(0,212,255,0.4)" }}>⚗️</div>
@@ -556,10 +563,6 @@ export default function LabScene() {
           </div>
         )}
       </div>
-
-      <style>{`@keyframes lsPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }`}</style>
     </div>
   );
 }
-
-

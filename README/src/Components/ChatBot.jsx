@@ -1,33 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
-import { marked } from "marked"; // تأكد من تثبيت marked: npm install marked
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { marked } from "marked";
 
-const SYSTEM_PROMPT = `أنت ChemBot AI، مساعد ذكاء اصطناعي متخصص بالكيمياء باللغة العربية.
+const SYSTEM_PROMPT = `أنت ChemBot AI، مساعد ذكاء اصطناعي متخصص حصرياً في الكيمياء باللغة العربية.
 
-قواعدك:
-1. تجيب فقط على الأسئلة المتعلقة بالكيمياء والعلوم الطبيعية المرتبطة بها (فيزياء الجزيئات، الرياضيات الكيميائية)
-2. إذا سألك أحد عن موضوع خارج الكيمياء، أخبره بلطف أنك متخصص فقط في الكيمياء وتنسيق بيانات علم الكيمياء
-3. تجيب باللغة العربية الفصحى الواضحة
-4. تستخدم الرموز الكيميائية الدولية (H₂O, CO₂, NaCl, إلخ)
-5. تشرح المعادلات الكيميائية بوضوح وتوازنها
-6. تستخدم التنسيق الجيد: عناوين، قوائم، جداول عند الحاجة
-7. تعطي أمثلة عملية وتطبيقات حياتية عند الإمكان
-8. تذكر قوانين ومعادلات بشكل واضح
+## قاعدة أساسية صارمة جداً:
+أنت متخصص في الكيمياء فقط. إذا جاءك أي سؤال خارج نطاق الكيمياء — مهما كان نوعه (تقنية، رياضة، طعام، لابتوب، سياسة، ترفيه، صحة عامة، وصفات، أخبار، إلخ) — يجب أن ترفضه فوراً بهذه الجملة بالضبط:
 
-مجالاتك:
+"⚗️ عذراً! أنا ChemBot AI ومتخصص في الكيمياء فقط. سؤالك خارج نطاق تخصصي. هل لديك سؤال عن تفاعل كيميائي، عنصر، معادلة، أو أي موضوع كيميائي؟ 🧪"
+
+لا تحاول الإجابة على أي سؤال غير كيميائي مهما بدا بسيطاً أو منطقياً.
+
+## مجالاتك الوحيدة المسموح بها:
 - الكيمياء العامة والتحليلية
 - الكيمياء العضوية وغير العضوية
 - الكيمياء الفيزيائية والحرارية
-- التفاعلات الكيميائية والمعادلات
-- الجدول الدوري والعناصر
+- التفاعلات الكيميائية والمعادلات وموازنتها
+- الجدول الدوري والعناصر وخصائصها
 - الروابط الكيميائية والتركيب الجزيئي
 - المحاليل والتركيز والمولارية
 - الكيمياء الكهروكيميائية
-- الكيمياء الحيوية (المركبات العضوية الحيوية)
+- الكيمياء الحيوية (فقط المركبات الكيميائية الحيوية)
 - حسابات الكيمياء والستويوميتري
+- قوانين الغازات وقانون أفوجادرو وبويل وشارل
 
-قدم إجابات منظمة ومفصلة ودقيقة علمياً.`;
+## قواعد الإجابة على أسئلة الكيمياء:
+1. أجب باللغة العربية الفصحى الواضحة
+2. استخدم الرموز الكيميائية الدولية (H₂O, CO₂, NaCl, إلخ)
+3. اشرح المعادلات الكيميائية بوضوح ووازنها
+4. استخدم التنسيق الجيد: عناوين، قوائم، جداول عند الحاجة
+5. أعطِ أمثلة عملية وتطبيقات حياتية عند الإمكان
+6. اذكر قوانين ومعادلات بشكل واضح ودقيق علمياً`;
 
-// دالة مساعدة لتنسيق الوقت
 function formatTime(ts) {
   const d = new Date(ts);
   return d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }) + ' ' +
@@ -35,7 +38,6 @@ function formatTime(ts) {
 }
 
 export default function ChatBotPage() {
-  // حالة المحادثات
   const [conversations, setConversations] = useState([]);
   const [currentConvId, setCurrentConvId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -44,22 +46,33 @@ export default function ChatBotPage() {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem("groq_api_key") || "");
 
-  // مراجع للعناصر
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // تحميل المحادثات من localStorage عند بدء التشغيل
+  // --- التعديل الأساسي: فتح الصفحة دائماً من الأعلى ---
+  useLayoutEffect(() => {
+    // منع المتصفح من استعادة آخر موضع تمرير
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // تمرير نافذة المتصفح للأعلى
+    window.scrollTo(0, 0);
+    // تمرير حاوية الرسائل (إن وُجدت) للأعلى
+    const msgContainer = document.getElementById('messagesContainer');
+    if (msgContainer) {
+      msgContainer.scrollTop = 0;
+    }
+  }, []);
+
+  // تحميل المحادثات من localStorage
   useEffect(() => {
     const saved = localStorage.getItem("chembot_conversations");
     if (saved) {
       try {
         const convs = JSON.parse(saved);
         setConversations(convs);
-        if (convs.length > 0) {
-          const last = convs[convs.length - 1];
-          setCurrentConvId(last.id);
-          setMessages(last.messages || []);
-        }
+        setCurrentConvId(null);
+        setMessages([]);
       } catch (e) {}
     }
   }, []);
@@ -71,12 +84,13 @@ export default function ChatBotPage() {
     }
   }, [conversations]);
 
-  // التمرير التلقائي لآخر رسالة
+  // التمرير التلقائي لآخر رسالة (بعد إرسال رسالة جديدة فقط)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
-  // حفظ المحادثة الحالية في القائمة
   const saveConversation = (msgs, titleHint) => {
     const conv = {
       id: currentConvId || Date.now().toString(),
@@ -96,22 +110,31 @@ export default function ChatBotPage() {
     return conv.id;
   };
 
-  // إنشاء محادثة جديدة
   const newChat = () => {
     setCurrentConvId(null);
     setMessages([]);
+    // عند بدء محادثة جديدة، نعيد التمرير للأعلى أيضاً
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      const msgContainer = document.getElementById('messagesContainer');
+      if (msgContainer) msgContainer.scrollTop = 0;
+    }, 0);
   };
 
-  // تحميل محادثة قديمة
   const loadConversation = (id) => {
     const conv = conversations.find(c => c.id === id);
     if (conv) {
       setCurrentConvId(conv.id);
       setMessages(conv.messages);
+      // عند تحميل محادثة قديمة، نعيد التمرير للأعلى
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        const msgContainer = document.getElementById('messagesContainer');
+        if (msgContainer) msgContainer.scrollTop = 0;
+      }, 0);
     }
   };
 
-  // حذف محادثة
   const deleteConversation = (id, e) => {
     e.stopPropagation();
     const newConvs = conversations.filter(c => c.id !== id);
@@ -122,7 +145,6 @@ export default function ChatBotPage() {
     }
   };
 
-  // إرسال رسالة
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || isLoading) return;
@@ -208,7 +230,6 @@ export default function ChatBotPage() {
 
   return (
     <div className="chatbot-fullpage">
-      {/* الهيدر */}
       <div className="chatbot-header-full">
         <button className="back-home" onClick={() => window.location.href = "/"}>← العودة للرئيسية</button>
         <h2>🧪 ChemBot – مساعد الكيمياء الذكي</h2>
@@ -218,9 +239,7 @@ export default function ChatBotPage() {
         </div>
       </div>
 
-      {/* القسم الرئيسي: sidebar + منطقة الشات */}
       <div className="chatbot-main">
-        {/* الشريط الجانبي للمحادثات */}
         <div className="chatbot-sidebar">
           <div className="sidebar-header">
             <span className="sidebar-title">المحادثات</span>
@@ -253,7 +272,6 @@ export default function ChatBotPage() {
           </div>
         </div>
 
-        {/* منطقة الرسائل */}
         <div className="chat-area">
           <div className="messages-container" id="messagesContainer">
             {messages.length === 0 && (
@@ -322,7 +340,6 @@ export default function ChatBotPage() {
         </div>
       </div>
 
-      {/* مودال إدخال API Key */}
       {showKeyModal && (
         <div className="modal-overlay">
           <div className="modal-content">

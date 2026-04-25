@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import reactionData from "../Data/csvjson (1).json";
 
 const STATE_LABELS = {
@@ -43,8 +43,8 @@ function Pill({ label, bg, text, border }) {
     <span
       style={{
         display: "inline-block",
-        fontSize: 15,              // 🔥 كان 11
-        padding: "6px 14px",       // 🔥 تكبير واضح
+        fontSize: 15,
+        padding: "6px 14px",
         borderRadius: 999,
         background: bg,
         color: text,
@@ -55,6 +55,31 @@ function Pill({ label, bg, text, border }) {
       {label}
     </span>
   );
+}
+
+// مكون النجوم المتحركة (مطابق لباقي الصفحات)
+function StarsBackground() {
+  const starsRef = useRef(null);
+  useEffect(() => {
+    const container = starsRef.current;
+    if (!container) return;
+    const count = 220;
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement("div");
+      star.className = "catalog-star";
+      const size = Math.random() * 2.5 + 1.2;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.animationDelay = `${Math.random() * 8}s`;
+      star.style.animationDuration = `${Math.random() * 6 + 5}s`;
+      star.style.opacity = Math.random() * 0.7 + 0.2;
+      container.appendChild(star);
+    }
+    return () => { while (container.firstChild) container.removeChild(container.firstChild); };
+  }, []);
+  return <div ref={starsRef} className="catalog-stars" />;
 }
 
 export default function ReactionCatalog() {
@@ -79,20 +104,69 @@ export default function ReactionCatalog() {
   return (
     <div
       style={{
-        padding: "2.5rem", // 🔥 كان 1.5
+        padding: "2.5rem",
         fontFamily: "sans-serif",
         width: "100%",
         margin: 0,
         minHeight: "100vh",
         color: "#e0f4ff",
-        background: "linear-gradient(180deg, #081630 0%, #02050d 100%)",
+        background: "transparent", // أصبحت شفافة
+        position: "relative",
       }}
     >
+      <StarsBackground />
+
+      <style>{`
+        .catalog-stars {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: -5;
+          overflow: hidden;
+          background: transparent;
+        }
+        .catalog-stars .catalog-star {
+          position: absolute;
+          background: radial-gradient(circle, #ffffff, #aaddff);
+          border-radius: 50%;
+          box-shadow: 0 0 8px rgba(255,255,200,0.6);
+          animation: catalogStarTwinkle 6s infinite alternate;
+        }
+        @keyframes catalogStarTwinkle {
+          0% { opacity: 0.2; transform: scale(1); }
+          100% { opacity: 1; transform: scale(1.3); }
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          backdrop-filter: blur(2px);
+        }
+        th, td {
+          padding: 14px 16px;
+          border-bottom: 1px solid rgba(0,212,255,0.15);
+        }
+        tr:hover {
+          background: rgba(0,212,255,0.05);
+        }
+        input, select {
+          background: rgba(10, 25, 45, 0.75) !important;
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(0,212,255,0.3);
+          transition: 0.2s;
+        }
+        input:focus, select:focus {
+          border-color: #00d4ff;
+          outline: none;
+          box-shadow: 0 0 10px rgba(0,212,255,0.3);
+        }
+      `}</style>
+
       <h2 style={{ 
-        fontSize: 32,     // 🔥 كان 20
+        fontSize: 32,     
         fontWeight: 700, 
         marginBottom: "1.5rem", 
-        color: "#00d4ff" 
+        color: "#00d4ff",
+        textShadow: "0 0 6px rgba(0,212,255,0.3)"
       }}>
         Reaction Catalog
       </h2>
@@ -106,11 +180,11 @@ export default function ReactionCatalog() {
           style={{
             flex: 1,
             minWidth: 220,
-            padding: "12px 16px",     // 🔥
+            padding: "12px 16px",
             borderRadius: 10,
-            border: "1px solid rgba(0,212,255,0.2)",
-            fontSize: 16,             // 🔥
-            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(0,212,255,0.3)",
+            fontSize: 16,
+            background: "rgba(10, 25, 45, 0.75)",
             color: "#e0f4ff",
             outline: "none",
           }}
@@ -121,9 +195,9 @@ export default function ReactionCatalog() {
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            border: "1px solid rgba(0,212,255,0.2)",
+            border: "1px solid rgba(0,212,255,0.3)",
             fontSize: 16,
-            background: "#0d1428",
+            background: "rgba(10, 25, 45, 0.75)",
             color: "#e0f4ff",
           }}
         >
@@ -138,9 +212,9 @@ export default function ReactionCatalog() {
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            border: "1px solid rgba(0,212,255,0.2)",
+            border: "1px solid rgba(0,212,255,0.3)",
             fontSize: 16,
-            background: "#0d1428",
+            background: "rgba(10, 25, 45, 0.75)",
             color: "#e0f4ff",
           }}
         >
@@ -151,21 +225,21 @@ export default function ReactionCatalog() {
         </select>
       </div>
 
-      <p style={{ fontSize: 16, color: "#88aacc", marginBottom: "1rem" }}>
+      <p style={{ fontSize: 16, color: "#aac8ff", marginBottom: "1rem" }}>
         {filtered.length} reaction{filtered.length !== 1 ? "s" : ""} found
       </p>
 
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 16 }}>
+        <table>
           <thead>
-            <tr style={{ borderBottom: "1px solid rgba(0,212,255,0.2)" }}>
+            <tr style={{ borderBottom: "1px solid rgba(0,212,255,0.4)" }}>
               {["Equation", "Product State", "Conditions", "Observation", "Safety"].map((h) => (
                 <th
                   key={h}
                   style={{
                     textAlign: "left",
-                    padding: "14px 14px",
+                    padding: "14px 16px",
                     fontWeight: 700,
                     fontSize: 16,
                     color: "#00d4ff",
@@ -187,10 +261,7 @@ export default function ReactionCatalog() {
               filtered.map((d, i) => {
                 const safety = getSafetyInfo(d.safety || "");
                 return (
-                  <tr
-                    key={i}
-                    style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-                  >
+                  <tr key={i}>
                     <td style={{ padding: "16px", fontFamily: "monospace", fontSize: 18 }}>
                       {d.equation}
                     </td>
@@ -198,7 +269,7 @@ export default function ReactionCatalog() {
                       <span
                         style={{
                           display: "inline-block",
-                          width: 18,     // 🔥 كان 10
+                          width: 18,
                           height: 18,
                           borderRadius: "50%",
                           background: d.product_color || "#ccc",
@@ -208,17 +279,17 @@ export default function ReactionCatalog() {
                       />
                       <Pill
                         label={STATE_LABELS[d.products_state] || d.products_state}
-                        bg="rgba(255,255,255,0.06)"
+                        bg="rgba(255,255,255,0.08)"
                         text="#c8e8ff"
-                        border="rgba(255,255,255,0.1)"
+                        border="rgba(255,255,255,0.15)"
                       />
                     </td>
                     <td style={{ padding: "16px" }}>
                       <Pill
                         label={CONDITION_LABELS[d.conditions] || d.conditions}
-                        bg="rgba(0,212,255,0.08)"
+                        bg="rgba(0,212,255,0.12)"
                         text="#00d4ff"
-                        border="rgba(0,212,255,0.2)"
+                        border="rgba(0,212,255,0.3)"
                       />
                     </td>
                     <td style={{ padding: "16px", fontSize: 15 }}>
