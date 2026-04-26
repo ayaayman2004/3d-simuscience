@@ -685,10 +685,14 @@ export default function Home() {
             margin: 0 !important;
             padding: 0 !important;
             scroll-behavior: smooth;
+            overflow-x: hidden;
+            max-width: 100%;
           }
           .home-dark {
             margin-top: 0;
             padding-top: 0;
+            overflow-x: hidden;
+            width: 100%;
           }
           .hd-hero {
             margin-top: 0 !important;
@@ -850,12 +854,14 @@ export default function Home() {
             padding: 80px 0 40px 0;
             overflow: hidden;
             background: #060818;
+            max-width: 100%;
           }
           .infinite-slider-container {
             width: 100%;
             overflow: hidden;
             position: relative;
             padding: 20px 0;
+            max-width: 100vw;
           }
           .slider-fade-left,
           .slider-fade-right {
@@ -1122,6 +1128,7 @@ export default function Home() {
             margin: 0;
             background: transparent;
             perspective: 1000px;
+            overflow: hidden;
           }
           .cinematic-container {
             background: linear-gradient(145deg, rgba(8,12,28,0.85), rgba(2,6,18,0.95));
