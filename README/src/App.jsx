@@ -82,11 +82,11 @@ const GLOBAL_TRANSPARENT_CSS = `
    ANIMATED KOHLI GRADIENT + MOVING ORBS/PARTICLES
 ────────────────────────────────────────────────── */
 const ORBS = [
-  { size: 520, x: 12, y: 8,  color: "rgba(10,42,74,0.25)",  dur: 18, delay: 0   },  // كحلي غامق
-  { size: 380, x: 72, y: 15, color: "rgba(30,58,138,0.25)", dur: 22, delay: -4  },  // أزرق ملكي
-  { size: 280, x: 40, y: 55, color: "rgba(0,212,255,0.2)",  dur: 15, delay: -8  },  // سماوي
-  { size: 440, x: 85, y: 55, color: "rgba(139,92,246,0.2)", dur: 25, delay: -12 },  // أرجواني
-  { size: 200, x: 20, y: 80, color: "rgba(16,185,129,0.15)",dur: 12, delay: -6  },  // زمردي خفيف
+  { size: 520, x: 12, y: 8,  color: "rgba(10,42,74,0.25)",  dur: 18, delay: 0   },
+  { size: 380, x: 72, y: 15, color: "rgba(30,58,138,0.25)", dur: 22, delay: -4  },
+  { size: 280, x: 40, y: 55, color: "rgba(0,212,255,0.2)",  dur: 15, delay: -8  },
+  { size: 440, x: 85, y: 55, color: "rgba(139,92,246,0.2)", dur: 25, delay: -12 },
+  { size: 200, x: 20, y: 80, color: "rgba(16,185,129,0.15)",dur: 12, delay: -6  },
   { size: 320, x: 60, y: 85, color: "rgba(0,100,200,0.22)", dur: 20, delay: -2  },
   { size: 180, x: 90, y: 10, color: "rgba(59,130,246,0.22)",dur: 14, delay: -9  },
   { size: 260, x: 5,  y: 45, color: "rgba(123,47,247,0.2)", dur: 17, delay: -3  },
@@ -105,7 +105,6 @@ const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
 function AnimatedBackground() {
   return (
     <>
-      {/* ── Animated gradient background (kohli tones + moving colors) ── */}
       <div style={{
         position: "fixed", inset: 0, zIndex: -10,
         background: "linear-gradient(135deg, #0a2a4a, #0a1c3a, #1a2a5e, #0a1025, #1e1b4b)",
@@ -113,7 +112,6 @@ function AnimatedBackground() {
         animation: "gradientShift 18s ease infinite",
       }} />
 
-      {/* ── Animated grid (kohli blue) ── */}
       <div style={{
         position: "fixed", inset: 0, zIndex: -9,
         backgroundImage: `
@@ -126,7 +124,6 @@ function AnimatedBackground() {
         WebkitMaskImage: "radial-gradient(ellipse 90% 90% at 50% 50%, black 40%, transparent 100%)",
       }} />
 
-      {/* ── Glowing orbs (moving) ── */}
       <div style={{ position: "fixed", inset: 0, zIndex: -8, overflow: "hidden", pointerEvents: "none" }}>
         {ORBS.map((orb, i) => (
           <div key={i} style={{
@@ -144,7 +141,6 @@ function AnimatedBackground() {
         ))}
       </div>
 
-      {/* ── Floating particles (kohli & purple spark) ── */}
       <div style={{ position: "fixed", inset: 0, zIndex: -7, overflow: "hidden", pointerEvents: "none" }}>
         {PARTICLES.map((p) => (
           <div key={p.id} style={{
@@ -163,7 +159,6 @@ function AnimatedBackground() {
         ))}
       </div>
 
-      {/* ── Corner accents (kohli & violet) ── */}
       <div style={{ position: "fixed", inset: 0, zIndex: -7, pointerEvents: "none" }}>
         <div style={{
           position: "absolute", top: 0, left: 0, width: 280, height: 280,
@@ -225,7 +220,9 @@ function AnimatedBackground() {
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
   }, [pathname]);
   return null;
 }
