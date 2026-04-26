@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// 🔹 الصور (تأكدي من صحة المسارات)
 import tool1 from "./beaker-removebg-preview.png";
 import tool2 from "./flask.png";
 import tool3 from "./bureette.png";
@@ -10,32 +9,32 @@ import tool5 from "./bunsenburner.png";
 import tool6 from "./balancejpg-removebg-preview.png";
 import tool7 from "./thermometerjpg-removebg-preview.png";
 import tool8 from "./pipettejpg-removebg-preview.png";
-import tool9 from "./funnel-removebg-preview.png";
-import tool10 from "./microscope-removebg-preview.png";
-import tool11 from "./cylinderjpg-removebg-preview.png";
-import tool12 from "./ptridishjpg.jpg";
 
 const tools = [
-  { id: 1, name: "Beaker", image: tool1, description: "Used to hold and mix liquids." },
-  { id: 2, name: "Flask", image: tool2, description: "Used for mixing and heating solutions." },
-  { id: 3, name: "Burette", image: tool3, description: "Measures precise liquid volumes." },
-  { id: 4, name: "Test Tube", image: tool4, description: "Used for small-scale reactions." },
+  { id: 1, name: "Beaker",        image: tool1, description: "Used to hold and mix liquids." },
+  { id: 2, name: "Flask",         image: tool2, description: "Used for mixing and heating solutions." },
+  { id: 3, name: "Burette",       image: tool3, description: "Measures precise liquid volumes." },
+  { id: 4, name: "Test Tube",     image: tool4, description: "Used for small-scale reactions." },
   { id: 5, name: "Bunsen Burner", image: tool5, description: "Produces a single open gas flame." },
-  { id: 6, name: "Balance", image: tool6, description: "Measures mass very accurately." },
-  { id: 7, name: "Thermometer", image: tool7, description: "Measures the temperature." },
-  { id: 8, name: "Pipette", image: tool8, description: "Transports measured volumes." },
+  { id: 6, name: "Balance",       image: tool6, description: "Measures mass very accurately." },
+  { id: 7, name: "Thermometer",   image: tool7, description: "Measures the temperature." },
+  { id: 8, name: "Pipette",       image: tool8, description: "Transports measured volumes." },
 ];
+
+const CARD_W = 200;
+const GAP    = 30;
+const TOTAL  = (CARD_W + GAP) * tools.length;
 
 export default function ChemicalTools() {
   const [selectedTool, setSelectedTool] = useState(null);
+  const [paused, setPaused] = useState(false);
 
-  // مضاعفة المصفوفة لضمان استمرار الحركة بدون فجوات
-  const duplicatedTools = [...tools, ...tools];
+  const tripled = [...tools, ...tools, ...tools];
 
   return (
-    <div className="modern-marquee-container">
+    <div className="mq-container">
       <style>{`
-        .modern-marquee-container {
+        .mq-container {
           min-height: 50vh;
           background: #04060f;
           display: flex;
@@ -43,145 +42,173 @@ export default function ChemicalTools() {
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          padding: 40px 0;
+          padding: clamp(24px, 5vw, 48px) 0;
         }
 
-        .marquee-title {
+        .mq-title {
           color: #00d4ff;
-          font-size: 2.5rem;
-          margin-bottom: 40px;
+          font-size: clamp(1.4rem, 5vw, 2.5rem);
+          margin: 0 0 clamp(20px, 4vw, 40px);
           text-transform: uppercase;
-          letter-spacing: 4px;
-          text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+          letter-spacing: clamp(2px, 1vw, 6px);
+          text-shadow: 0 0 20px rgba(0,212,255,0.3);
+          text-align: center;
+          padding: 0 16px;
         }
 
-        /* حاوية الشريط */
-        .marquee-window {
+        /* الـ window هو الوحيد اللي بيقص المحتوى */
+        .mq-window {
           width: 100%;
           overflow: hidden;
-          display: flex;
-          mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          position: relative;
+          -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          mask-image:         linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
 
-        .marquee-track {
+        /* CSS animation بدل Framer Motion x لأنه أكثر دقة مع الـ marquee */
+        .mq-track {
           display: flex;
-          gap: 30px;
+          gap: ${GAP}px;
           padding: 20px 0;
+          width: max-content;
+          animation: mqScroll ${tools.length * 3.5}s linear infinite;
+          will-change: transform;
+        }
+        .mq-track.paused { animation-play-state: paused; }
+
+        @keyframes mqScroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-${TOTAL}px); }
         }
 
-        /* كارت الأداة */
-        .modern-card {
-          min-width: 200px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(0, 212, 255, 0.1);
+        .mq-card {
+          width: ${CARD_W}px;
+          flex-shrink: 0;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(0,212,255,0.1);
           backdrop-filter: blur(10px);
-          border-radius: 20px;
-          padding: 20px;
+          border-radius: clamp(12px, 2vw, 20px);
+          padding: clamp(14px, 2vw, 20px);
           text-align: center;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
         }
-
-        .modern-card:hover {
-          border: 1px solid rgba(0, 212, 255, 0.5);
-          background: rgba(0, 212, 255, 0.05);
+        .mq-card:hover {
+          border-color: rgba(0,212,255,0.5);
+          background: rgba(0,212,255,0.05);
           transform: translateY(-10px) scale(1.05);
-          box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+          box-shadow: 0 10px 30px rgba(0,212,255,0.2);
         }
-
-        .modern-card img {
-          width: 100px;
-          height: 100px;
+        .mq-card img {
+          width: clamp(70px, 12vw, 100px);
+          height: clamp(70px, 12vw, 100px);
           object-fit: contain;
-          margin-bottom: 15px;
-          filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.2));
+          margin-bottom: 12px;
+          filter: drop-shadow(0 0 10px rgba(0,212,255,0.2));
+          pointer-events: none;
         }
-
-        .modern-card h3 {
+        .mq-card h3 {
           color: #fff;
-          font-size: 1.1rem;
+          font-size: clamp(0.85rem, 2.5vw, 1.1rem);
           margin: 0;
         }
 
-        /* Modal Style */
-        .overlay {
+        /* Modal */
+        .mq-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.85);
+          background: rgba(0,0,0,0.85);
           backdrop-filter: blur(10px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 5000;
+          padding: 20px;
         }
-
-        .modal-box {
+        .mq-modal {
           background: #0d1530;
-          padding: 40px;
-          border-radius: 30px;
+          padding: clamp(24px, 5vw, 40px);
+          border-radius: clamp(16px, 3vw, 30px);
           border: 1px solid #00d4ff;
           text-align: center;
-          max-width: 400px;
+          width: 100%;
+          max-width: 380px;
+        }
+        .mq-modal img {
+          width: clamp(100px, 25vw, 150px);
+          object-fit: contain;
+          margin-bottom: 12px;
+        }
+        .mq-modal h2 {
+          color: #00d4ff;
+          font-size: clamp(1.2rem, 4vw, 1.6rem);
+          margin: 0 0 10px;
+        }
+        .mq-modal p {
+          color: #a8c0d8;
+          font-size: clamp(0.85rem, 2.5vw, 1rem);
+          margin: 0 0 20px;
+          line-height: 1.5;
+        }
+        .mq-close-btn {
+          padding: clamp(8px, 2vw, 10px) clamp(20px, 4vw, 28px);
+          border-radius: 20px;
+          border: none;
+          background: #00d4ff;
+          color: #04060f;
+          font-weight: 700;
+          font-size: clamp(0.85rem, 2.5vw, 1rem);
+          cursor: pointer;
+        }
+        .mq-close-btn:hover { background: #00b8e0; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .mq-track { animation-duration: 60s; }
         }
       `}</style>
 
-      <h2 className="marquee-title">Laboratory Gear</h2>
+      <h2 className="mq-title">Laboratory Gear</h2>
 
-      <div className="marquee-window">
-        <motion.div 
-          className="marquee-track"
-          animate={{
-            x: [0, -1000], // يتحرك لليسار
-          }}
-          transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: "loop",
-              duration: 20, // السرعة
-              ease: "linear",
-            },
-          }}
-          whileHover={{ animationPlayState: "paused" }} // يتوقف عند مرور الماوس
-        >
-          {duplicatedTools.map((tool, index) => (
-            <div 
-              key={index} 
-              className="modern-card"
-              onClick={() => setSelectedTool(tool)}
-            >
+      <div
+        className="mq-window"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+      >
+        <div className={`mq-track ${paused ? "paused" : ""}`}>
+          {tripled.map((tool, i) => (
+            <div key={i} className="mq-card" onClick={() => setSelectedTool(tool)}>
               <img src={tool.image} alt={tool.name} />
               <h3>{tool.name}</h3>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      {/* Popup / Modal */}
       <AnimatePresence>
         {selectedTool && (
-          <motion.div 
-            className="overlay"
+          <motion.div
+            className="mq-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedTool(null)}
           >
-            <motion.div 
-              className="modal-box"
-              initial={{ scale: 0.8, y: 50 }}
-              animate={{ scale: 1, y: 0 }}
-              onClick={(e) => e.stopPropagation()}
+            <motion.div
+              className="mq-modal"
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0,  opacity: 1 }}
+              exit={{ y: 40,    opacity: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 260 }}
+              onClick={e => e.stopPropagation()}
             >
-              <img src={selectedTool.image} style={{width: 150}} alt="" />
-              <h2 style={{color: "#00d4ff"}}>{selectedTool.name}</h2>
-              <p style={{color: "#a8c0d8"}}>{selectedTool.description}</p>
-              <button 
-                onClick={() => setSelectedTool(null)}
-                style={{
-                  marginTop: 20, padding: "10px 25px", borderRadius: 20,
-                  border: "none", background: "#00d4ff", cursor: "pointer"
-                }}
-              >Close</button>
+              <img src={selectedTool.image} alt={selectedTool.name} />
+              <h2>{selectedTool.name}</h2>
+              <p>{selectedTool.description}</p>
+              <button className="mq-close-btn" onClick={() => setSelectedTool(null)}>Close</button>
             </motion.div>
           </motion.div>
         )}
